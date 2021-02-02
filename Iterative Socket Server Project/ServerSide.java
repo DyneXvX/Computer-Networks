@@ -15,18 +15,18 @@ public class ServerSide {
         System.out.println("---Starting up the Server Side----");
         System.out.println("Waiting for the Client to connect.");
         System.out.println("----------------------------------");
-        System.out.println("Host: 139.62.210.153");
-        System.out.println("Justin the port is 3287");
+        System.out.println("-------Host: 139.62.210.153-------");
+        System.out.println("-----Justin the port is 3287------");
 
         // Once again possible IO Exceptions build catch.
         ServerSocket serverSocket = new ServerSocket(3287);
         Socket socket = serverSocket.accept();
 
         System.out.println("The connection has been accepted.");       
-        BufferedReader in;
+        BufferedReader reader; //in
 
         // Get information from the ClientSide and send it back out
-        PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+        PrintWriter writer = new PrintWriter(socket.getOutputStream(), true);
         InputStream input = socket.getInputStream();
         
         //---Requested Build Methods for Class---
@@ -39,26 +39,42 @@ public class ServerSide {
 
         // Build Client Choices for testing
         while (true) {
-            in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            String choice = in.readLine();
+            reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            String choice = reader.readLine();
             switch (choice) {
+                
+                //Date and Time
                 case "1":
                     LocalDate date = LocalDate.now();
                     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss");
                     LocalDateTime timeNow = LocalDateTime.now();
-                    out.println(date);
-                    out.println(formatter.format(timeNow));
+                    writer = new PrintWriter(socket.getOutputStream(), true);
+                    writer.println(date);
+                    writer.println(formatter.format(timeNow));
                     continue;
-
+                
+                // Server Uptime
+                case "2":
+                    writer = new PrintWriter(socket.getOutputStream(), true);
+                    writer.println(serverCMD("uptime"));
+                    continue;
+                
+                //Memory In use
+                case "3":
+                    writer = new PrintWriter(socket.getOutputStream(), true);
+                    writer.println(serverCMD("netstat"));
+                    writer.flush();
+                    continue;
+                    
                 case "End":
-                    out.println("ServerSide shutting down.");
+                    writer.println("ServerSide shutting down.");
                     input.close();
-                    out.close();
+                    writer.close();
                     break;
                 default:
-                    out = new PrintWriter(socket.getOutputStream(), true);    
-                    out.println("Justin we broke something.");
-                    out.flush();
+                    writer = new PrintWriter(socket.getOutputStream(), true);    
+                    writer.println("Justin we broke something.");
+                    writer.flush();
                     
 
             }
@@ -66,4 +82,19 @@ public class ServerSide {
         }
         serverSocket.close();
     }
+
+	public static String serverCMD(String x) throws IOException {
+		String s = "";
+		String l; 
+		Process p = Runtime.getRuntime().exec(x);
+		BufferedReader stdInput = new BufferedReader(new 
+                InputStreamReader(p.getInputStream()));
+
+  
+           while((l = stdInput.readLine()) != null) {
+        	   s ="\n" + l + s;
+           }
+      return s;
+ 
+	}
 }

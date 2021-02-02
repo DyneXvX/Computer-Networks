@@ -35,8 +35,8 @@ public class ClientSide {
             int request = Integer.parseInt(input.readLine());
 
             //send information back and forth between Server and Client
-            PrintWriter out;
-            BufferedReader in;
+            PrintWriter writer;      //out
+            BufferedReader reader;   //in
 
             //setup the timers
             Instant start;
@@ -45,15 +45,16 @@ public class ClientSide {
             Duration total = Duration.ZERO;
 
             //Menu
-            System.out.println("-----------------Menu-------------------------------------");
-            System.out.println("------------Please enter a number-------------------------");
-            System.out.println("1 - Date and Time on the Server");
-            System.out.println("2 - For the Server Uptime");
-            System.out.println("3 - For Current Memory Use on the Server");
+            System.out.println("-----------------Menu-------------------------------------------");
+            System.out.println("------------Please enter a number-------------------------------");
+            System.out.println("1 - Date and Time on the Server---------------------------------");
+            System.out.println("2 - For the Server Uptime---------------------------------------");
+            System.out.println("3 - For Current Memory Use on the Server------------------------");
             System.out.println("4 - For Net Stats ('List of Current Connections on the Server ')");
-            System.out.println("5 - For a list of Current Users on the Server");
-            System.out.println("6 - For a list of Current Running Processes on the Server");
-            System.out.println("---------------------------------------------------------");
+            System.out.println("5 - For a list of Current Users on the Server-------------------");
+            System.out.println("6 - For a list of Current Running Processes on the Server-------");
+            System.out.println("7 - End the test------------------------------------------------");
+            System.out.println("----------------------------------------------------------------");
             
 
             
@@ -66,27 +67,27 @@ public class ClientSide {
                 menuChoice = new BufferedReader(new InputStreamReader(System.in));
                 int choice = Integer.parseInt(menuChoice.readLine());
 
-                out = new PrintWriter(socket.getOutputStream(), true);
+                writer = new PrintWriter(socket.getOutputStream(), true);
                 start = Instant.now();
-                out.println(choice);
+                writer.println(choice);
 
-                in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                 end = Instant.now();
                 
                 timeRan = Duration.between(start, end);
                 total = total.plus(timeRan);
 
                 //display time to the client
-                System.out.println(in.readLine());
+                System.out.println(reader.readLine());
                 System.out.println("The time it took was: " + timeRan.toNanos() + " nanoseconds.");
                 
                 //close connection if total will be what the requested number is.
                 if((i + 1) == request)
                 {
-                    out = new PrintWriter(socket.getOutputStream(), true);
-                    out.println("End");
-                    in.close();
-                    out.close();
+                    writer = new PrintWriter(socket.getOutputStream(), true);
+                    writer.println("End");
+                    reader.close();
+                    writer.close();
                 }
 
             }
