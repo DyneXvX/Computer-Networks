@@ -25,10 +25,12 @@ public class ServerSide {
         PrintWriter writer = new PrintWriter(socket.getOutputStream(), true);
         String choice;
         boolean running = true;
+
+        reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+        choice = reader.readLine();
         // Build Client Choices for testing
         while (running) {
-            reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            choice = reader.readLine();
+
             if (choice != null) {
                 switch (choice) {
 
@@ -75,7 +77,7 @@ public class ServerSide {
                     // Shut Down
                     case "7":
                         writer = new PrintWriter(socket.getOutputStream(), true);
-                        System.out.println("ServerSide Shutting Down.");                        
+                        System.out.println("ServerSide Shutting Down.");
                         reader.close();
                         writer.close();
                         break;
@@ -86,7 +88,7 @@ public class ServerSide {
                 }// end case
 
             } // end if
-            
+
         }
     }
 
