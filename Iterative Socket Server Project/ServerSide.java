@@ -1,13 +1,9 @@
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.net.ServerSocket;
-import java.net.Socket;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.net.*;
+import java.io.*;
+import java.lang.Runtime;
+import java.lang.Process;
 
 public class ServerSide {
     public static void main(String[] args) throws IOException {
@@ -22,79 +18,90 @@ public class ServerSide {
         ServerSocket serverSocket = new ServerSocket(3287);
         Socket socket = serverSocket.accept();
 
-        System.out.println("The connection has been accepted.");       
-        BufferedReader reader; //in
+        System.out.println("The connection has been accepted.");
+        BufferedReader reader; // in
 
         // Get information from the ClientSide and send it back out
         PrintWriter writer = new PrintWriter(socket.getOutputStream(), true);
-        InputStream input = socket.getInputStream();
-        
-        //---Requested Build Methods for Class---
-        // Date and Time - the date and time on the server
-        // Uptime - how long the server has been running since last boot-up
-        // Memory Use - the current memory usage on the server
-        // Net Stat - lists network connections on the server
-        // Current Users - list of users currently connected to the server
-        // Running Processes - list of programs currently running on the server
-
+        String choice;
+        boolean running = true;
         // Build Client Choices for testing
-        while (true) {
+        while (running) {
             reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            String choice = reader.readLine();
-            switch (choice) {
-                
-                //Date and Time
-                case "1":
-                    LocalDate date = LocalDate.now();
-                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss");
-                    LocalDateTime timeNow = LocalDateTime.now();
-                    writer = new PrintWriter(socket.getOutputStream(), true);
-                    writer.println(date);
-                    writer.println(formatter.format(timeNow));
-                    continue;
-                
-                // Server Uptime
-                case "2":
-                    writer = new PrintWriter(socket.getOutputStream(), true);
-                    writer.println(serverCMD("uptime"));
-                    continue;
-                
-                //Memory In use
-                case "3":
-                    writer = new PrintWriter(socket.getOutputStream(), true);
-                    writer.println(serverCMD("netstat"));
-                    writer.flush();
-                    continue;
-                    
-                case "End":
-                    writer.println("ServerSide shutting down.");
-                    input.close();
-                    writer.close();
-                    break;
-                default:
-                    writer = new PrintWriter(socket.getOutputStream(), true);    
-                    writer.println("Justin we broke something.");
-                    writer.flush();
-                    
+            choice = reader.readLine();
+            if (choice != null) {
+                switch (choice) {
 
-            }
-            break;
+                    // Date and Time
+                    case "1":
+                        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss");
+                        LocalDateTime date = LocalDateTime.now();
+                        System.out.println(formatter.format(date));
+                        writer = new PrintWriter(socket.getOutputStream(), true);
+                        writer.println(formatter.format(date));
+                        continue;
+
+                    // Server Uptime
+                    case "2":
+                        // System.out.println("uptime");
+                        writer.println(serverCMD("uptime"));
+                        writer = new PrintWriter(socket.getOutputStream(), true);
+                        continue;
+
+                    // Memory In use
+                    case "3":
+                        writer = new PrintWriter(socket.getOutputStream(), true);
+                        writer.println(serverCMD("cat /proc/meminfo"));
+                        continue;
+
+                    // Net Stats
+                    case "4":
+                        writer = new PrintWriter(socket.getOutputStream(), true);
+                        writer.println(serverCMD("netstat"));
+                        continue;
+
+                    // Current Users
+                    case "5":
+                        writer = new PrintWriter(socket.getOutputStream(), true);
+                        writer.println(serverCMD("who"));
+                        continue;
+
+                    // Running Process
+                    case "6":
+                        writer = new PrintWriter(socket.getOutputStream(), true);
+                        writer.println(serverCMD("ps -aux"));
+                        continue;
+
+                    // Shut Down
+                    case "7":
+                        writer = new PrintWriter(socket.getOutputStream(), true);
+                        System.out.println("ServerSide Shutting Down.");                        
+                        reader.close();
+                        writer.close();
+                        break;
+
+                    default:
+                        writer = new PrintWriter(socket.getOutputStream(), true);
+                        writer.println("Justin we broke something.");
+                }// end case
+
+            } // end if
+            
         }
-        serverSocket.close();
     }
 
-	public static String serverCMD(String x) throws IOException {
-		String s = "";
-		String l; 
-		Process p = Runtime.getRuntime().exec(x);
-		BufferedReader stdInput = new BufferedReader(new 
-                InputStreamReader(p.getInputStream()));
+    public static String serverCMD(String x) throws IOException {
+        String s = "";
+        String line = null;
+        Process process = Runtime.getRuntime().exec(x);
+        BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
 
-  
-           while((l = stdInput.readLine()) != null) {
-        	   s ="\n" + l + s;
-           }
-      return s;
- 
-	}
+        while ((line = reader.readLine()) != null) {
+            System.out.println(line);
+            s = line;
+        }
+        return s;
+
+    }
+
 }

@@ -3,6 +3,7 @@ import java.net.InetAddress;
 import java.net.Socket;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.function.Function;
 
 public class ClientSide {
 
@@ -24,27 +25,23 @@ public class ClientSide {
             System.out.println("Please input the port to use.");
             input = new BufferedReader(new InputStreamReader(System.in));
             int port = Integer.parseInt(input.readLine());
-            
-            //note these can through IO Exceptions build a catch for this.
+
+            // note these can through IO Exceptions build a catch for this.
             Socket socket = new Socket(InetAddress.getByName(address), port);
 
-            //From class zoom menu:
-            //And directly taken option from instructions.
-            System.out.println("How many client request do you want to generate?");
-            input = new BufferedReader(new InputStreamReader(System.in));
-            int request = Integer.parseInt(input.readLine());
+            // send information back and forth between Server and Client
+            PrintWriter writer; // out
+            BufferedReader reader; // in
 
-            //send information back and forth between Server and Client
-            PrintWriter writer;      //out
-            BufferedReader reader;   //in
-
-            //setup the timers
+            // setup the timers
             Instant start;
             Instant end;
-            Duration timeRan;
+            Duration timeRan = Duration.ZERO;
             Duration total = Duration.ZERO;
 
-            //Menu
+            //
+
+            // Menu
             System.out.println("-----------------Menu-------------------------------------------");
             System.out.println("------------Please enter a number-------------------------------");
             System.out.println("1 - Date and Time on the Server---------------------------------");
@@ -55,44 +52,53 @@ public class ClientSide {
             System.out.println("6 - For a list of Current Running Processes on the Server-------");
             System.out.println("7 - End the test------------------------------------------------");
             System.out.println("----------------------------------------------------------------");
-            
+            int choice = 0;
 
-            
-            for (int i = 0; i < request; i ++)
-            {
-                System.out.println("Make a request please");
+            do {
+                // From class zoom menu:
+                // And directly taken option from instructions.
+                System.out.println("How many client request do you want to generate?");
+                input = new BufferedReader(new InputStreamReader(System.in));
+                int request = Integer.parseInt(input.readLine());
 
-                //get menu choice from the user
+                System.out.println("Make choose a menu choice please");
+
+                // get menu choice from the user
                 BufferedReader menuChoice = new BufferedReader(new InputStreamReader(System.in));
                 menuChoice = new BufferedReader(new InputStreamReader(System.in));
-                int choice = Integer.parseInt(menuChoice.readLine());
-
-                writer = new PrintWriter(socket.getOutputStream(), true);
-                start = Instant.now();
-                writer.println(choice);
-
-                reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-                end = Instant.now();
+                choice = Integer.parseInt(menuChoice.readLine());
                 
-                timeRan = Duration.between(start, end);
-                total = total.plus(timeRan);
-
-                //display time to the client
-                System.out.println(reader.readLine());
-                System.out.println("The time it took was: " + timeRan.toNanos() + " nanoseconds.");
-                
-                //close connection if total will be what the requested number is.
-                if((i + 1) == request)
+                if (choice == 7)
                 {
                     writer = new PrintWriter(socket.getOutputStream(), true);
-                    writer.println("End");
-                    reader.close();
-                    writer.close();
+                    start = Instant.now();
+                    writer.println(choice);
+                }
+                else
+                {
+                    for (int i = 0; i < request; i++) {
+                        // to server
+                        writer = new PrintWriter(socket.getOutputStream(), true);
+                        start = Instant.now();
+                        writer.println(choice);
+
+                        // from server
+                        reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                        System.out.println(reader.readLine());
+                        end = Instant.now();
+
+                        // time setup
+                        timeRan = Duration.between(start, end);
+                        total = total.plus(timeRan);
+
+                    }
+                    // display time to the client
+                    System.out.println("The time it took was: " + timeRan.toNanos() + " Nanoseconds.");
                 }
 
-            }
-        } 
-        catch (IOException exception) {
+            } while (choice != 7);
+
+        } catch (IOException exception) {
             exception.printStackTrace();
         }
     }
