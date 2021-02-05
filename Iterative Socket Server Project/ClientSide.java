@@ -4,6 +4,7 @@ import java.net.Socket;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.function.Function;
+import java.util.function.ToIntFunction;
 
 public class ClientSide {
 
@@ -38,6 +39,7 @@ public class ClientSide {
             Instant end;
             Duration timeRan = Duration.ZERO;
             Duration total = Duration.ZERO;
+            double average = 0;
 
             //
 
@@ -53,50 +55,47 @@ public class ClientSide {
             System.out.println("7 - End the test------------------------------------------------");
             System.out.println("----------------------------------------------------------------");
             int choice = 0;
-
-            do {
+            while (true) {
                 // From class zoom menu:
                 // And directly taken option from instructions.
                 System.out.println("How many client request do you want to generate?");
                 input = new BufferedReader(new InputStreamReader(System.in));
                 int request = Integer.parseInt(input.readLine());
 
-                System.out.println("Make choose a menu choice please");
+                System.out.println("Choose a menu choice please");
 
                 // get menu choice from the user
                 BufferedReader menuChoice = new BufferedReader(new InputStreamReader(System.in));
                 menuChoice = new BufferedReader(new InputStreamReader(System.in));
                 choice = Integer.parseInt(menuChoice.readLine());
-                
-                if (choice == 7)
-                {
+                for (int i = 0; i < request; i++) {
+                    // to server
                     writer = new PrintWriter(socket.getOutputStream(), true);
                     start = Instant.now();
                     writer.println(choice);
+
+                    // from server
+                    reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                    System.out.println(reader.readLine());
+                    end = Instant.now();
+
+                    // time setup
+                    timeRan = Duration.between(start, end);
+                    total = total.plus(timeRan);
                 }
-                else
-                {
-                    for (int i = 0; i < request; i++) {
-                        // to server
-                        writer = new PrintWriter(socket.getOutputStream(), true);
-                        start = Instant.now();
-                        writer.println(choice);
-
-                        // from server
-                        reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-                        System.out.println(reader.readLine());
-                        end = Instant.now();
-
-                        // time setup
-                        timeRan = Duration.between(start, end);
-                        total = total.plus(timeRan);
-
-                    }
-                    // display time to the client
-                    System.out.println("The time it took was: " + timeRan.toNanos() + " Nanoseconds.");
+                if (choice == 7) {
+                    System.out.println("Client Side Shutting Down.");
+                    System.out.println("Thank you for using a Justin Thoms Java Program");
+                    break;
                 }
+                // display time to the client
+                System.out.println("The time it took was: " + timeRan.toNanos() + " Nanoseconds.");
+                long millis = timeRan.toMillis();
+                System.out.println("You made a total of " + request + " request");
+                average = ((double) millis / request) * 100;
+                System.out.println("Therefore the average request took a total of " + average + " milliseconds.");
 
-            } while (choice != 7);
+            }
 
         } catch (IOException exception) {
             exception.printStackTrace();
