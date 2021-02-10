@@ -29,6 +29,9 @@ public class ServerSide {
         while (true) {
             reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             choice = reader.readLine();
+            if (choice == null) {
+                break;
+            }
 
             switch (choice) {
 
@@ -97,14 +100,14 @@ public class ServerSide {
     }
 
     public static String serverCMD(String x) throws IOException {
-        String s = null;
-        String line = null;
+        String s = "";
+        String line;
         Process process = Runtime.getRuntime().exec(x);
         BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
 
         while ((line = reader.readLine()) != null) {
             System.out.println(line);
-            s = line;
+            s ="\n" + line + s;
         }
         return s;
 
