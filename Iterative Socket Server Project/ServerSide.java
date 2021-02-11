@@ -107,7 +107,7 @@ public class ServerSide {
 
         while ((line = reader.readLine()) != null) {
             System.out.println(line);
-            s ="\n" + line + s;
+            s = line + "\n" + s;
         }
         return s;
 

@@ -41,21 +41,22 @@ public class ClientSide {
             Duration total = Duration.ZERO;
             double average = 0;
 
-            //
-
-            // Menu
-            System.out.println("-----------------Menu-------------------------------------------");
-            System.out.println("------------Please enter a number-------------------------------");
-            System.out.println("1 - Date and Time on the Server---------------------------------");
-            System.out.println("2 - For the Server Uptime---------------------------------------");
-            System.out.println("3 - For Current Memory Use on the Server------------------------");
-            System.out.println("4 - For Net Stats ('List of Current Connections on the Server ')");
-            System.out.println("5 - For a list of Current Users on the Server-------------------");
-            System.out.println("6 - For a list of Current Running Processes on the Server-------");
-            System.out.println("7 - End the test------------------------------------------------");
-            System.out.println("----------------------------------------------------------------");
             int choice = 0;
+            //
             while (true) {
+                // Menu
+                System.out.println();
+                System.out.println("-----------------Menu-------------------------------------------");
+                System.out.println("------------Please enter a number-------------------------------");
+                System.out.println("1 - Date and Time on the Server---------------------------------");
+                System.out.println("2 - For the Server Uptime---------------------------------------");
+                System.out.println("3 - For Current Memory Use on the Server------------------------");
+                System.out.println("4 - For Net Stats ('List of Current Connections on the Server ')");
+                System.out.println("5 - For a list of Current Users on the Server-------------------");
+                System.out.println("6 - For a list of Current Running Processes on the Server-------");
+                System.out.println("7 - End the test------------------------------------------------");
+                System.out.println("----------------------------------------------------------------");
+
                 // From class zoom menu:
                 // And directly taken option from instructions.
                 System.out.println("How many client request do you want to generate?");
@@ -81,6 +82,8 @@ public class ClientSide {
 
                     // time setup
                     timeRan = Duration.between(start, end);
+                    long millisRan = timeRan.toMillis();
+                    System.out.println("This test took: " + millisRan + " milliseconds.");
                     total = total.plus(timeRan);
                 }
                 if (choice == 7) {
@@ -89,11 +92,13 @@ public class ClientSide {
                     break;
                 }
                 // display time to the client
-                System.out.println("The time it took was: " + timeRan.toNanos() + " Nanoseconds.");
-                long millis = timeRan.toMillis();
+                long totalMillis = total.toMillis();
+                System.out.println("The total time these test took was: " + totalMillis + " milliseconds.");
                 System.out.println("You made a total of " + request + " request");
-                average = ((double) millis / request) * 100;
-                System.out.println("Therefore the average request took a total of " + average + " milliseconds.");
+
+                average = (totalMillis / request);
+                System.out.println(
+                        "Therefore the average request took a total of " + average + " milliseconds. (Rounded)");
 
             }
 
