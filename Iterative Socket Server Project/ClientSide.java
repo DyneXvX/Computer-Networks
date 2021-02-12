@@ -3,8 +3,6 @@ import java.net.InetAddress;
 import java.net.Socket;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.function.Function;
-import java.util.function.ToIntFunction;
 
 public class ClientSide {
 

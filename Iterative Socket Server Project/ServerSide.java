@@ -47,7 +47,6 @@ public class ServerSide {
 
                 // Server Uptime
                 case "2":
-                    // System.out.println("uptime");
                     writer.println(serverCMD("uptime"));
                     writer = new PrintWriter(socket.getOutputStream(), true);
                     writer.flush();
