@@ -31,7 +31,7 @@ public class Connection {
             while (true) {
                 Socket socket = serverSocket.accept();
                 System.out.println("The connection has been accepted.");
-                new Connection(socket).start();
+                new ServerSide(socket).start();
             }
         } catch (IOException ex) {
             System.out.println("Server Error: " + ex.getMessage());

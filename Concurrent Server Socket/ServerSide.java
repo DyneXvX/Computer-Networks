@@ -5,23 +5,29 @@ import java.io.*;
 import java.lang.Runtime;
 import java.lang.Process;
 
-public class ServerSide {
-    public static void main(String[] args) throws IOException {
-        BufferedReader reader; // in
-        
-        // Get information from the ClientSide and send it back out
-        PrintWriter writer = new PrintWriter(socket.getOutputStream(), true);
-        String choice;
+public class ServerSide extends Thread {
+    private Socket socket;
 
-        // Build Client Choices for testing
-        while (true) {
-            reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            choice = reader.readLine();
-            if (choice == null) {
-                break;
-            }
+    public ServerSide(Socket socket) {
+        this.socket = socket;
+    }
 
-            switch (choice) {
+    public void run() {
+        try {
+            BufferedReader reader; // in
+
+            // Get information from the Connection and send it back to the Client
+            PrintWriter writer = new PrintWriter(socket.getOutputStream(), true);
+            String choice;
+            
+            while (true) {
+                reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                choice = reader.readLine();
+                if (choice == null) {
+                    break;
+                }
+
+                switch (choice) {
 
                 // Date and Time
                 case "1":
@@ -80,9 +86,11 @@ public class ServerSide {
                     writer = new PrintWriter(socket.getOutputStream(), true);
                     writer.println("Justin we broke something.");
                     writer.flush();
-            }// end case
-            break;
-
+                }// end case
+                break;
+            }
+        } catch (IOException ex) {
+            System.out.println("Server Error:" + ex.getMessage());
         }
     }
 
@@ -94,7 +102,7 @@ public class ServerSide {
 
         while ((line = reader.readLine()) != null) {
             System.out.println(line);
-            s ="\n" + line + s;
+            s = "\n" + line + s;
         }
         return s;
 
